@@ -16,62 +16,48 @@ _NO_TEXT_SUFFIX = "--no text, letters, typography, writing, words, signature, wa
 
 _MODE_INSTRUCTIONS: dict[str, str] = {
     "poster": (
-        "Generation Mode: POSTER (Monumental 3D Commercial Billboard & Swiss Design Aesthetic).\n"
-        "- Zero Clutter & Minimalism: Exactly ONE central monumental hero object or iconic architectural sculpture (Focal Point). "
-        "Strictly prohibit messy patterns, random clutter, or chaotic decorative elements.\n"
-        "- 70/30 Negative Space Rule: 70% of the canvas MUST be clean, deep, aesthetic negative space (deep dark gradient #0D0E11, "
-        "cinematic volumetric atmosphere, matte surface, soft ambient shadows) specifically reserved for bold typography and logo overlay.\n"
-        "- Lighting & Materials: Cinematic volumetric studio lighting, crisp rim light, raytraced reflections, Octane render quality. "
-        "Materials: Translucent frosted glass, brushed titanium, liquid chrome, glossy acrylic, matte carbon fiber."
+        "- Generation Mode: POSTER (Monumental 3D Commercial Billboard & Swiss Design Aesthetic).\n"
+        "- Zero Clutter & Single Hero Focus: Exactly ONE central monumental hero object or iconic physical subject (Focal Point).\n"
+        "- 70/30 Negative Space Rule: 70% of the canvas MUST be clean, deep, aesthetic negative space (#0D0E11 dark moody gradient) specifically reserved for bold headline and logo overlay."
     ),
     "post": (
-        "Generation Mode: POST (Editorial Advertising & Luxury Social Media Art).\n"
-        "- Zero Clutter & Minimalism: Single mesmerizing focal object or luxury fashion editorial composition. "
-        "Magazine-cover visual impact with deep focal depth (85mm f/1.4 lens) and creamy bokeh background.\n"
-        "- 70/30 Negative Space Rule: Balanced composition leaving unobstructed space for headline readability.\n"
-        "- Lighting & Materials: Volumetric directional lighting, soft rim light, raytraced reflections, tactile luxury textures."
+        "- Generation Mode: POST (Editorial Advertising & Luxury Social Media Art).\n"
+        "- Single mesmerizing focal object or luxury commercial editorial composition with deep focal depth (85mm f/1.4 lens) and creamy bokeh background.\n"
+        "- 70/30 Negative Space Rule: Balanced composition leaving unobstructed space for headline readability."
     ),
     "background": (
-        "Generation Mode: BACKGROUND (Ambient Fluid Texture & Minimalist Hero Canvas).\n"
-        "- Visual Focus: Minimalist abstract fluid background, ambient depth of field, caustics light refraction, smooth volumetric waves. "
-        "No central focal subjects, no characters, zero clutter."
+        "- Generation Mode: BACKGROUND (Ambient Fluid Texture & Minimalist Hero Canvas).\n"
+        "- Minimalist abstract fluid background, ambient depth of field, caustics light refraction, smooth volumetric waves, zero central clutter."
     ),
 }
 
-_SYSTEM_PROMPT_TEMPLATE = """You are an elite Executive Creative Director and Lead Prompt Engineer at a world-renowned design agency (Apple, Nike, Cannes Lions Grand Prix aesthetics).
+_SYSTEM_PROMPT_TEMPLATE = """You are a World-Class Art Director at a top creative advertising agency (Apple, Nike, Porsche level).
 
-Your mission is to transform the source brief into an ultra-premium, production-grade English prompt for the FLUX image generation model, alongside a high-converting headline and social media caption.
+CRITICAL TASK:
+You will receive the FULL PARSED TEXT of a social media post or article. You MUST analyze the ENTIRE text payload from start to finish.
 
-### GRAPHIC DESIGN PRINCIPLES:
-1. **Zero Clutter & Single Hero Focus**: Exactly ONE monumental focal element. Forbid chaotic details.
-2. **70/30 Negative Space Rule**: 70% clean, dark, atmospheric negative space (dark gradient #0D0E11, soft studio shadows) reserved for typography overlay.
-3. **Lighting & Materials**: Cinematic volumetric lighting, rim light, raytracing, Octane render. Translucent frosted glass, brushed titanium, liquid chrome, glossy acrylic.
-4. **Style Qualifiers**: 8k resolution, award-winning commercial advertising photography, photorealistic masterwork.
-5. **Mode Specifics**:
-{mode_instruction}
+STEP-BY-STEP PROCESS:
+1. READ THE ENTIRE PARSED TEXT: Understand the full story, core product/service, central topic, and key message (NOT just the first sentence).
+2. EXTRACT PHYSICAL SUBJECT MATTER: Identify the exact real-world subject (e.g., if coffee -> premium espresso cup with crema and dark roast beans; if real estate -> glass architecture; if tickets/sale/event -> glowing concert stage, golden VIP passes, dynamic illuminated amphitheater; if tech/AI -> brushed titanium hardware or sleek holographic terminal). NO generic abstract shapes or meaningless floating blobs.
+3. WRITE A HIGH-END IMAGE PROMPT (in English):
+   - Style: Commercial editorial photography or hyper-realistic 3D Octane render.
+   - Layout: 70/30 Negative Space rule (70% clean moody background #0D0E11 for text/logo overlay).
+   - Lighting: Cinematic studio rim light, volumetric softbox diffusion.
+   {mode_instruction}
+   {brandbook_instruction}
+   - Visual Style Direction: {visual_style}
+   - Tone of Voice: {tone_of_voice}
+   - Ending Suffix (MANDATORY): Always append "{no_text_suffix}"
 
-### BRAND IDENTITY:
-{brandbook_instruction}
-
-### STYLE & TONE:
-- Visual Style: {visual_style}
-- Tone of Voice: {tone_of_voice}
-
-### LANGUAGE REQUIREMENTS:
+LANGUAGE REQUIREMENTS:
 - Selected Locale: {locale} ({locale_name})
-- Generate `headline` (3-6 words) and `post_text` (2-4 sentences with 5-7 relevant hashtags) STRICTLY in {locale_name}.
+- Generate `headline` (3-6 words) and `post_text` (engaging summary of the full post with hashtags and CTA) STRICTLY in {locale_name}.
 
-### CRITICAL RULES:
-- The `image_prompt` MUST be in English only.
-- The `image_prompt` MUST NEVER request text, letters, slogans, or watermarks.
-- The `image_prompt` MUST ALWAYS conclude with: "{no_text_suffix}"
-
-### OUTPUT FORMAT:
-Output ONLY a raw JSON object (no markdown, no backticks):
+RETURN ONLY RAW JSON (no markdown, no backticks):
 {{
-  "headline": "Short impactful title (3-6 words in {locale_name})",
-  "post_text": "Engaging caption with hashtags (2-4 sentences in {locale_name})",
-  "image_prompt": "Detailed English prompt (150-250 words) ending with {no_text_suffix}"
+  "headline": "Short punchy summary (3-6 words in {locale_name})",
+  "post_text": "Adapted engaging text summarizing the entire post with CTA and hashtags in {locale_name}",
+  "image_prompt": "Your masterwork English image prompt (150-250 words) based on the full parsed text ending with {no_text_suffix}"
 }}"""
 
 _LOCALE_NAMES = {"kk": "Kazakh", "ru": "Russian", "en": "English"}
@@ -127,7 +113,7 @@ def build_grok_system_prompt(
         )
     else:
         brandbook_instruction = (
-            "No specific brandbook selected. Use an ultra-clean minimalist commercial palette "
+            "- Brand Identity: Ultra-clean minimalist commercial palette "
             "with #CC5500 warm amber and #ADD8E6 electric blue highlights against deep cinematic neutral tones (#0D0E11)."
         )
 
@@ -146,9 +132,9 @@ def build_grok_system_prompt(
 
 def _build_user_message(input_content: str, generation_mode: str) -> str:
     return (
-        f"SOURCE CONTENT / BRIEF:\n{input_content}\n\n"
+        f"FULL PARSED POST / SOURCE CONTENT:\n{input_content.strip()}\n\n"
         f"TARGET GENERATION MODE: {generation_mode}\n\n"
-        "Generate the advertising creative JSON now."
+        "Analyze the entire text payload above and generate the advertising creative JSON now."
     )
 
 
@@ -166,10 +152,11 @@ def _parse_grok_json(raw_content: str, fallback_title: str) -> dict:
     try:
         return json.loads(content)
     except Exception:
+        first_line = fallback_title.split("\n", 1)[0].strip() if fallback_title else "Special Launch"
         return {
-            "headline": fallback_title[:60] if fallback_title else "Brand New Vision",
-            "post_text": content[:280] if content else "Discover the future with our latest launch.",
-            "image_prompt": content if len(content) > 40 else f"A monumental 3D commercial creative visual for {fallback_title}, 70% dark negative space #0D0E11, cinematic volumetric lighting, 85mm lens f/1.4, brushed titanium and frosted glass {_NO_TEXT_SUFFIX}",
+            "headline": first_line if first_line else "Special Launch",
+            "post_text": content if content else fallback_title.strip(),
+            "image_prompt": content if len(content) > 40 else f"A monumental 3D commercial creative visual representing {first_line}, 70% dark negative space #0D0E11, cinematic volumetric lighting, 85mm lens f/1.4, brushed titanium and frosted glass {_NO_TEXT_SUFFIX}",
         }
 
 
@@ -219,8 +206,9 @@ async def call_grok(
     }
 
     logger.info(
-        "GROK SEND mode=%s locale=%s style=%s tone=%s brandbook=%s",
+        "GROK SEND mode=%s locale=%s style=%s tone=%s text_chars=%d brandbook=%s",
         generation_mode, locale, visual_style, tone_of_voice,
+        len(input_content),
         brandbook.name if brandbook else "none",
     )
 

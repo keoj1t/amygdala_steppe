@@ -7,7 +7,7 @@ from app.schemas.project import ProjectRead
 
 class GenerationCreate(BaseModel):
     project_id: UUID
-    prompt: str = Field(min_length=1, max_length=5000)
+    prompt: str = Field(min_length=1, max_length=50000)
     mode: str = Field(default="poster", pattern="^(poster|post|background)$")
     aspect_ratio: str = Field(default="1:1", pattern="^(1:1|9:16|16:9|4:5)$")
     source_url: str | None = None

@@ -28,4 +28,4 @@ async def parse_instagram(url: str) -> tuple[str, str, str]:
             continue
     if not text:
         raise ValueError("Не удалось извлечь текст из ссылки instagram")
-    return text[:5000], "instagram", "instagram_parser"
+    return text.strip(), "instagram", "instagram_parser"

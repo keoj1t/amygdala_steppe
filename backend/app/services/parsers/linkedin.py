@@ -4,7 +4,7 @@ import httpx
 
 async def parse_linkedin(url: str) -> tuple[str, str, str]:
     headers = {"User-Agent": "Mozilla/5.0 (compatible; AmygdalaContentFactory/1.0)"}
-    async with httpx.AsyncClient(follow_redirects=True, timeout=15) as client:
+    async with httpx.AsyncClient(follow_redirects=True, timeout=20) as client:
         response = await client.get(url, headers=headers)
         response.raise_for_status()
 
@@ -25,9 +25,9 @@ async def parse_linkedin(url: str) -> tuple[str, str, str]:
         text = html.unescape(match.group(1)).strip()
 
     if not text:
-        text = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", response.text)).strip()[:5000]
+        text = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", response.text)).strip()
 
     if not text:
         raise ValueError("Не удалось извлечь текст из ссылки linkedin")
 
-    return text[:5000], "linkedin", "linkedin_parser"
+    return text.strip(), "linkedin", "linkedin_parser"

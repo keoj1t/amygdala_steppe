@@ -2,7 +2,6 @@ import html
 import json
 import logging
 import re
-import asyncio
 from pathlib import Path
 from urllib.parse import urlparse
 from uuid import uuid4
@@ -14,7 +13,7 @@ from .parsers import parse_telegram, parse_instagram, parse_linkedin, parse_web
 
 logger = logging.getLogger("amygdala.pipeline")
 
-_NO_TEXT_SUFFIX = "--no text, letters, typography, watermark, signature, logos, words, gibberish"
+_NO_TEXT_SUFFIX = "--no text, letters, typography, writing, words, signature, watermark, logos, clutter, noise, ugly, cartoon, low quality, distorted"
 
 META_PATTERN = re.compile(
     r'<meta\s+(?:[^>]*?\s)?(?:property|name)=["\']([^"\']+)["\'][^>]*?content=["\']([^"\']*)["\'][^>]*>',
@@ -63,8 +62,8 @@ async def parse_source_to_json(source_url: str) -> dict[str, str | None]:
         "source_url": source_url,
         "platform": platform,
         "parser": parser_name,
-        "title": text.split("\n", maxsplit=1)[0][:240],
-        "text": text,
+        "title": text.split("\n", maxsplit=1)[0].strip(),
+        "text": text.strip(),
         "media_url": None,
     }
     parsed_dir = Path(get_settings().upload_dir).parent / "parsed"
@@ -86,7 +85,7 @@ async def parse_source_to_json(source_url: str) -> dict[str, str | None]:
 
 async def extract_source_text(source_url: str) -> tuple[str, str]:
     text, platform, _ = await parse_source_url(source_url)
-    return text, platform
+    return text.strip(), platform
 
 
 async def improve_prompt(
@@ -107,7 +106,7 @@ async def improve_prompt(
         )
 
     user_message_parts = [
-        f"Source content ({platform}):\n{source_text}\n\n",
+        f"Source content ({platform}):\n{source_text.strip()}\n\n",
         f"{format_instruction}\n",
     ]
 
@@ -125,7 +124,7 @@ async def improve_prompt(
     )
 
     fallback = (
-        f"A luxury commercial advertising visual for {source_text[:300]}. "
+        f"A luxury commercial advertising visual for {source_text.strip()}. "
         f"85mm lens f/1.4, cinematic volumetric lighting, raytracing, soft studio rim light, 8k resolution {_NO_TEXT_SUFFIX}"
     )
 
@@ -153,7 +152,7 @@ async def improve_prompt(
     headers = {"Authorization": f"Bearer {settings.groq_api_key}", "Content-Type": "application/json"}
 
     try:
-        async with httpx.AsyncClient(timeout=30) as client:
+        async with httpx.AsyncClient(timeout=45) as client:
             response = await client.post(settings.groq_api_url, headers=headers, json=payload)
             response.raise_for_status()
             content = response.json()["choices"][0]["message"]["content"]
