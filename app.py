@@ -12,6 +12,7 @@ from uuid import uuid4
 ROOT = Path(__file__).parent
 GENERATED = ROOT / "generated"
 GENERATED.mkdir(exist_ok=True)
+API_URL = "https://gen.pollinations.ai/v1/images/generations"
 POLLINATIONS_BASE_URL = "https://image.pollinations.ai/prompt"
 
 
@@ -74,17 +75,50 @@ def enhance_prompt(user_prompt: str) -> str:
 
 
 def generate_image(prompt: str) -> str:
-    base_url = get_env("POLLINATIONS_BASE_URL") or POLLINATIONS_BASE_URL
-    model = get_env("POLLINATIONS_MODEL") or "flux"
-    encoded_prompt = urllib.parse.quote(prompt.strip())
-    image_url = f"{base_url.rstrip('/')}/{encoded_prompt}?width=1080&height=1080&model={model}&nologo=true"
+    api_key = get_env("POLLINATIONS_API_KEY")
+    model = get_env("POLLINATIONS_MODEL") or "black-forest-labs/flux.2-klein-4b"
+    api_url = get_env("POLLINATIONS_API_URL") or API_URL
 
-    request = Request(
-        image_url,
-        headers={
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-        },
-    )
+    if api_key:
+        payload = json.dumps({
+            "model": model,
+            "prompt": prompt,
+            "size": "1080x1080",
+            "response_format": "url",
+        }).encode()
+        request = Request(
+            api_url,
+            data=payload,
+            method="POST",
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+                "User-Agent": "Mozilla/5.0",
+            },
+        )
+        try:
+            with urlopen(request, timeout=120) as response:
+                result = json.loads(response.read().decode())
+                remote_url = result.get("data", [{}])[0].get("url") or result.get("image")
+                if remote_url:
+                    dl_req = Request(remote_url, headers={"User-Agent": "Mozilla/5.0"})
+                    with urlopen(dl_req, timeout=60) as dl_resp:
+                        image_bytes = dl_resp.read()
+                        image_id = uuid4().hex
+                        file_path = GENERATED / f"{image_id}.jpg"
+                        file_path.write_bytes(image_bytes)
+                        return f"/generated/{file_path.name}"
+        except Exception:
+            pass
+
+    base_url = get_env("POLLINATIONS_BASE_URL") or POLLINATIONS_BASE_URL
+    encoded_prompt = urllib.parse.quote(prompt.strip())
+    image_url = f"{base_url.rstrip('/')}/{encoded_prompt}?width=1080&height=1080&model={urllib.parse.quote(model)}&nologo=true"
+    headers = {"User-Agent": "Mozilla/5.0"}
+    if api_key:
+        headers["Authorization"] = f"Bearer {api_key}"
+
+    request = Request(image_url, headers=headers)
     try:
         with urlopen(request, timeout=120) as response:
             image_bytes = response.read()

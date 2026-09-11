@@ -19,8 +19,10 @@ class Settings(BaseSettings):
     smtp_use_tls: bool = True
     otp_expire_minutes: int = 10
     upload_dir: str = "storage/uploads"
+    pollinations_api_key: str | None = None
+    pollinations_model: str = "black-forest-labs/flux.2-klein-4b"
+    pollinations_api_url: str = "https://gen.pollinations.ai/v1/images/generations"
     pollinations_base_url: str = "https://image.pollinations.ai/prompt"
-    pollinations_model: str = "flux"
     groq_api_key: str | None = None
     groq_model: str = "openai/gpt-oss-20b"
     groq_api_url: str = "https://api.groq.com/openai/v1/chat/completions"
