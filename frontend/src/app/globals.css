@@ -1,0 +1,88 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-orange: #CC5500;
+  --color-brand-blue: #ADD8E6;
+  --color-brand-dark: #000000;
+  --color-brand-light: #FFFFFF;
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  background: #000000;
+  color: #FFFFFF;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+.focus-ring {
+  outline: none;
+}
+
+.focus-ring:focus-visible {
+  box-shadow: 0 0 0 3px rgba(204, 85, 0, 0.24);
+}
+
+.creative-stage {
+  background: #000000;
+}
+
+.creative-grid {
+  border: 1px solid rgba(173, 216, 230, 0.18);
+  height: 61.8%;
+  right: 5%;
+  top: 8%;
+  transform: rotate(-8deg);
+  width: 61.8%;
+}
+
+.golden-rule {
+  background: rgba(173, 216, 230, 0.24);
+  height: 1px;
+  position: absolute;
+  right: 5%;
+  top: 69.1%;
+  width: 61.8%;
+}
+
+.golden-spiral {
+  border: 1px solid rgba(204, 85, 0, 0.32);
+  border-radius: 50%;
+  height: 38.2%;
+  position: absolute;
+  right: 16%;
+  top: 16%;
+  transform: rotate(28deg);
+  width: 38.2%;
+}
+
+.theme-light [class*="bg-black"] {
+  background-color: #FFFFFF !important;
+}
+
+.theme-light [class*="text-white"] {
+  color: #000000 !important;
+}
+
+.theme-light [class*="border-white"] {
+  border-color: rgba(0, 0, 0, 0.15) !important;
+}
+
+.theme-light [class*="bg-[#CC5500]"] {
+  background-color: #CC5500 !important;
+  color: #FFFFFF !important;
+}
